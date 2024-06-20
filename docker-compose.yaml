@@ -1,0 +1,28 @@
+version: '3'
+services:
+  pi-tdc:
+    image: tdc:dev
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      pi-db:
+        condition: "service_healthy"
+    ports:
+      - "8000:8000"
+    networks:
+      - pi-internal
+  pi-db:
+    hostname: db
+    image: postgres:15.1
+    environment:
+      POSTGRES_PASSWORD: "pw"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 1s
+      timeout: 3s
+      retries: 3
+    networks:
+      - pi-internal
+networks:
+  pi-internal:
